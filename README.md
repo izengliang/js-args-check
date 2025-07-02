@@ -1,5 +1,3 @@
-# js-args-check
+JavaScript only needs function parameter checking and unit testing.
 
-javascript only need function arguments check and unit test.
-
-Less is More.
+Less is more.
