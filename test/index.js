@@ -1,53 +1,41 @@
-import { validate, and, or, num, str, type, all } from "../lib/index.js";
-import { ok, throws } from "node:assert";
+import {
+    num, NumberValidator,
+    str, StringValidator,
+    or, OrValidator,
+    validate, obj, arr
+} from "../lib/index.js"
 
-ok(all.validate("allow all type value"));
+import { strictEqual as eq, notStrictEqual as neq } from "node:assert";
 
-// test string validator
-ok(str().validate("is str"));
-ok(str().len(10).validate("1234567890"));
-ok(str().max(5).validate("2222"));
-ok(!str().max(5).validate("2222225"));
-ok(str().regexp(/abc\dd/).validate("abc3d"));
-ok(str().max(5).validator((v) => true).validate("2222"));
-
-// test number validtor
-ok(num().min(10).validate(10))
-ok(num().max(20).validate(10))
-ok(!num().max(20).validate(21))
-ok(num().max(20).validate(10.99))
-ok(!num().isInteger().validate(10.99))
-ok(!num().isSafeInteger().validate(10.99))
+// string validator
+eq(validate(222, str())[0].cause, "type");
+eq(validate("222", str()), true);
+eq(validate("abc", str({ length: 5 }))[0].cause, "length")
+eq(validate("abc", str({ length: 3 })), true)
+eq(validate("abc", str({ minLength: 1, maxLength: 5 })), true)
+eq(validate("abcdddd", str({ minLength: 1, maxLength: 5 }))[0].cause, "maxLength")
+eq(validate("abc1d", str({ minLength: 3, regexp: /abc\dd/ })), true)
 
 
-// test type validator
-ok(type(Number).validate(1));
-ok(type(String).validate("ddddd"));
-ok(type(Boolean).validate(false));
-ok(type(RegExp).validate(/./g));
-class CustomType { }
-class ExtendCustomType extends CustomType { }
-ok(type(CustomType).validate(new CustomType()));
-ok(type(CustomType).validate(new ExtendCustomType()));
-ok(!type(CustomType, true).validate(new ExtendCustomType()));
-
-// test or-validator 
-ok(or(type(String), num().min(1)).validate("22"))
-ok(or(type(String), num().min(10)).validate(20))
-
-// test and-validator
-ok(and(type(Number), num().min(1)).validate(22));
-ok(!and(type(String), num().min(1)).validate(22));
+// number validator
+eq(validate("nonum", num())[0].cause, "type");
+eq(validate(12, num({ min: 10 })), true);
+eq(validate(12, num({ min: 100 }))[0].cause, "min");
+eq(validate(12, num({ max: 12 })), true);
+eq(validate(12, num({ max: 9 }))[0].cause, "max");
+// int
+eq(validate(12.2, num({ int: true }))[0].cause, "int");
+eq(validate(12, num({ int: true })), true);
 
 
-// test validate(values, validators)
-ok(
-    validate("leo", type(String))
-);
-
-throws(
-    () => validate("leo", type(Number))
-);
+// or validator
+eq(validate(12, or(num(), str())), true);
 
 
-ok(validate(["leo", 16], [str(), num()]))
+// array validator
+const items = [11, 22, 33];
+eq(validate([items], arr({ type: "number" })), true)
+
+// object validator
+const o = { name: "leo", age: 12, items: [12, 15] }
+eq(validate(o, obj({ name: str(), age: num({ min: 5 }) })), true)
