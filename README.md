@@ -15,6 +15,21 @@ function fn(name, info) {
 }
 
 
-fn("leo", { age: 18, des: "info1" }); // ok
-fn("leo", { age: 12, des: "info2" }); // error .info.age is error.
+fn("leo", { age: 18, des: "info1" }).ok; // true
+fn("leo", { age: 12, des: "info2" }).throw; // throw error.
+```
+
+development & production mode 
+```js
+
+function fn(){
+    globalThis.dev && validate(arguments, [str(),num()]);
+    ......
+}
+
+
+
+globalThis.dev = true; // call validate
+globalThis.dev = false; // no call validate
+
 ```
