@@ -1,8 +1,3 @@
-JavaScript only needs function parameter checking and unit testing.
-Less is more.
-
-Demo
-```js
 import { validate, obj, str, num } from "../lib/index.js";
 
 function fn(name, info) {
@@ -17,4 +12,3 @@ function fn(name, info) {
 
 fn("leo", { age: 18, des: "info1" }); // ok
 fn("leo", { age: 12, des: "info2" }); // error .info.age is error.
-```
